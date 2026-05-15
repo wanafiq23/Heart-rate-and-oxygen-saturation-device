@@ -1,0 +1,56 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Heart Rate and SpO2 Database Form</title>
+</head>
+
+<body>
+
+    <h2>Heart Rate and SpO2 Database Form</h2>
+
+    <hr>
+
+    <h3>1. Add User</h3>
+    <form method="POST" action="/back_end/user.php">
+        Name <input type="text" name="userName" required><p>
+        Password <input type="text" name="password" required><p>
+        Age <input type="text" name="userAge" required><p>
+
+        <input type="submit" value="Add User">
+    </form>
+
+    <hr>
+
+    <h3>2. Add Sensor</h3>
+    <form method="POST" action="/back_end/sensor.php">
+        Sensor Name <input type="text" name="sensorName" required><p>
+        Status <input type="text" name="status" required><p>
+        Location <input type="text" name="location" required><p>
+        MAC Address <input type="text" name="macAddress" required><p>
+
+        <input type="submit" value="Add Sensor">
+    </form>
+
+    <hr>
+
+    <h3>3. Add Measurement Type</h3>
+    <form method="POST" action="/back_end/meas_type.php">
+        Measurement Name <input type="text" name="measName" required><p>
+
+        <input type="submit" value="Add Measurement Type">
+    </form>
+
+    <hr>
+
+    <h3>4. Add Reading Data</h3>
+    <form method="POST" action="/back_end/data.php">
+        User ID <input type="text" name="userID" required><p>
+        Sensor ID <input type="text" name="sid" required><p>
+        Measurement ID <input type="text" name="mid" required><p>
+        Value <input type="text" name="value" required><p>
+
+        <input type="submit" value="Add Reading">
+    </form>
+
+</body>
+</html>
