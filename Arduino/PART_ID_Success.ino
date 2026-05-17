@@ -5,6 +5,8 @@
 #define SW1_PIN						7
 #define ADC_PIN						0
 
+#define FILTER_SIZE 2
+
 void Error_Handler(uint16_t code, uint32_t line, char* file) {
 	char str[200];
 	uint8_t i = 0;
@@ -24,10 +26,10 @@ void Error_Handler(uint16_t code, uint32_t line, char* file) {
 		UDR0 = str[i];									//transmit str[i]
 		i++;														//point to next character in string
 		while((UCSR0A & 0x20) == 0);		//wait until UDRE0 bit is set
-		} while(str[i] != 0);						//do while str[i] is NOT NUL (0x00)
+	} while(str[i] != 0);						//do while str[i] is NOT NUL (0x00)
 
 	for(;;);
-	}
+}
 
 int main(void) {
 	uint16_t err_code;
@@ -38,7 +40,10 @@ int main(void) {
 
 	uint32_t red_data, ir_data;
 	uint32_t print_timer = 0;
-	char uart_buf[64];
+	char uart_buf[300];
+
+	uint32_t red_samples[FILTER_SIZE]; // Local array to buffer 10 samples
+  uint8_t sample_count = 0;          // Tracks how many samples we have collected
 
 	char info_success[20];
 	char info_failed[20];
@@ -104,15 +109,18 @@ int main(void) {
 	}
 
 	for(;;) {
-		max30102_read_sample(&red_data, &ir_data);
+    // Read the pointers to see if a new sample is ready
+    uint8_t wr_ptr = max30102_read_reg(REG_FIFO_WR_PTR);
+    uint8_t rd_ptr = max30102_read_reg(REG_FIFO_RD_PTR);
 
-		// Print to Serial every 100ms to avoid clogging the buffer
-		//if (SYS_TICK >= print_timer) {
-		//print_timer = SYS_TICK + 100;
+    if (wr_ptr != rd_ptr) {
+      // Pull down the raw data (already bit-shifted and masked inside your function)
+      max30102_read_sample(&red_data, &ir_data);
 
-		// Use %lu for uint32_t on Arduino Uno
-		snprintf(uart_buf, sizeof(uart_buf), "%u, %u\n", red_data, ir_data);
-		UART_Write_String(uart_buf, strlen(uart_buf));
-		//}
-	}
+			// 4. Print the clean, averaged data to UART
+			snprintf(uart_buf, sizeof(uart_buf), "%lu\n",red_data);
+			UART_Write_String(uart_buf, strlen(uart_buf));
+
+    }
+  }
 }
